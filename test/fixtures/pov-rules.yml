@@ -1,0 +1,11 @@
+version: 1
+pov_rules:
+  - rule_id: POV-01
+    pov: 凪
+    forbidden_subjects:
+      - 凪は
+  - rule_id: POV-02
+    pov: 青木
+    forbidden_subjects:
+      - 青木は
+      - 青木も
