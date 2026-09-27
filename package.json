@@ -1,0 +1,26 @@
+{
+  "name": "novel-ci-core",
+  "version": "0.1.0",
+  "description": "Work-agnostic deterministic validators for Japanese web-novel manuscripts.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "novel-ci": "bin/novel-ci.mjs"
+  },
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "files": [
+    "bin/",
+    "src/"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "yaml": "^2.9.0"
+  }
+}
