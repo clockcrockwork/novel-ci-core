@@ -6,10 +6,9 @@ Work-agnostic, deterministic validators for Japanese novel manuscripts:
 - `p15 scan` — prose-quality *candidates* (not violations) with deterministic content-based IDs
 - `p15 verify` — checks a judgment record covers every current candidate
 
-This package is the extraction target described in NovelText
-`proposals/novel-ci-core-extraction.md`. It is vendored in the private NovelText
-repository under `packages/novel-ci-core/` until it is published as its own public
-repository; the directory is already laid out as that repository's root.
+This repository contains only the work-agnostic validator core. Consumer projects keep
+their manuscripts, design data, corpora, reader packets, and project-specific POV rules
+outside this repository and pass only exact local file paths at runtime.
 
 ## Boundary
 
