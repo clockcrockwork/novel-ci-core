@@ -16,4 +16,5 @@ jobs:
       - name: Repair release notes
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release edit v0.1.0 --notes "Immutable validator release. Integrity: sha256-1dc9e17c0319184922c80da8b04a97b5f35359a9434336cfdf5e6abfdefcf115"
+        run: |
+          gh release edit v0.1.0 --notes "Immutable validator release. Integrity: sha256-1dc9e17c0319184922c80da8b04a97b5f35359a9434336cfdf5e6abfdefcf115"
