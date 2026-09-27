@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Work-agnostic deterministic validators for Japanese web-novel manuscripts.",
   "type": "module",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "bin": {
     "novel-ci": "bin/novel-ci.mjs"
   },
