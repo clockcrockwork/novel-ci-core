@@ -1,0 +1,84 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - package.json
+      - bin/**
+      - src/**
+      - .github/workflows/release.yml
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install --no-audit --no-fund
+      - run: npm test
+      - id: meta
+        shell: bash
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          TAG="v${VERSION}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - id: integrity
+        if: steps.meta.outputs.exists == 'false'
+        shell: bash
+        run: |
+          VALUE="$(node --input-type=module <<'NODE'
+          import { createHash } from 'node:crypto';
+          import { readFileSync, readdirSync } from 'node:fs';
+          import { join } from 'node:path';
+
+          const files = ['package.json'];
+          for (const root of ['bin', 'src']) {
+            for (const name of readdirSync(root).sort()) files.push(join(root, name).replaceAll('\\', '/'));
+          }
+          files.sort();
+
+          const aggregate = createHash('sha256');
+          for (const file of files) {
+            const fileHash = createHash('sha256').update(readFileSync(file)).digest('hex');
+            aggregate.update(file);
+            aggregate.update('\0');
+            aggregate.update(fileHash);
+            aggregate.update('\n');
+          }
+          process.stdout.write('sha256-' + aggregate.digest('hex'));
+          NODE
+          )"
+          echo "value=${VALUE}" >> "$GITHUB_OUTPUT"
+          echo "Integrity: ${VALUE}"
+      - id: pack
+        if: steps.meta.outputs.exists == 'false'
+        shell: bash
+        run: |
+          FILE="$(npm pack --silent)"
+          echo "file=${FILE}" >> "$GITHUB_OUTPUT"
+      - name: Create GitHub release
+        if: steps.meta.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.meta.outputs.tag }}
+          INTEGRITY: ${{ steps.integrity.outputs.value }}
+          TARBALL: ${{ steps.pack.outputs.file }}
+        run: |
+          gh release create "$TAG" "$TARBALL" \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            --notes "Immutable validator release.\n\nIntegrity: `$INTEGRITY`"
